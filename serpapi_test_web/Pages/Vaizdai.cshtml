@@ -1,0 +1,42 @@
+﻿@page
+@model serpapi_test_web.Pages.VaizdaiModel
+@{
+    ViewData["Title"] = "Kraštovaizdžiai";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<form method="get">
+    <label for="location">Įveskite valstybę, miestą ar lokaciją:</label>
+    <input type="text" id="location" name="location" required />
+    <button type="submit">Ieškoti</button>
+</form>
+
+@if (Model != null && Model.SearchResults != null && Model.SearchResults["top_sights"] != null)
+{
+    var sights = Model.SearchResults["top_sights"]["sights"];
+    if (sights != null && sights.Count() > 0)
+    {
+        <div style="display: flex; flex-wrap: wrap;">
+            @foreach (var sight in sights.Take(5))
+            {
+                <div style="margin-bottom: 20px; margin-right: 20px;">
+                    <strong>@sight["title"]</strong><br />
+                    <a href="@sight["link"]" target="_blank">
+                        <img src="@sight["thumbnail"]" alt="@sight["title"]" style="max-width: 200px; max-height: 200px;" />
+                    </a>
+                    <br />
+                    <a href="@sight["link"]" target="_blank" class="btn btn-primary">Skaityti plačiau...</a>
+                </div>
+            }
+        </div>
+    }
+    else if (Model.NoResults)
+    {
+        <p>Nerasta rezultatų pagal paiešką.</p>
+    }
+    else
+    {
+        <p>Nerasta rezultatų.</p>
+    }
+}

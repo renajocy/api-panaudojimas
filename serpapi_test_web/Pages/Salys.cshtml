@@ -1,0 +1,62 @@
+﻿@page
+@model serpapi_test_web.Pages.SalysModel
+@{
+    var population = Model.CountryInfo?["population"];
+    var formattedPopulation = population != null ? string.Format("{0:N0}", int.Parse(population.ToString())) : "Unknown";
+    ViewData["Title"] = "Valstybių informacija";
+}
+
+<h1>Ieškoti valstybės informacijos</h1>
+
+<form method="get">
+    <label for="country">Įveskite šalies vardą (anglų kalba):</label>
+    <input type="text" id="country" name="country" required />
+    <button type="submit">Ieškoti</button>
+</form>
+
+@if (Model != null && Model.CountryInfo != null)
+{
+    if (Model.countryCount > 1)
+    {
+        <h3><b>Dėmesio! Buvo rasta daugiau nei vienos šalies informacija. Bus atvaizduojama pirmos valstybės informacija.</b></h3>
+    }
+    <div>
+        <h2>@Model.CountryInfo["name"]["common"]</h2>
+        <p>Oficialus pavadinimas: @Model.CountryInfo["name"]["official"]</p>
+        <p>Sostinė: @Model.CountryInfo["capital"].FirstOrDefault()</p>
+        <p>Populiacija: @formattedPopulation</p>
+        <p>Subregionas: @Model.CountryInfo["subregion"]</p>
+        @if (Model.CountryInfo["car"]["side"]?.ToString().ToLower() == "right")
+        {
+            <p>Vairavimo pusė: dešinė</p>
+        }
+        else
+        {
+            <p>Vairavimo pusė: kairė</p>
+        }
+        <p>Laiko zona: @Model.CountryInfo["timezones"].FirstOrDefault()</p>
+        @if (!(Model.CountryInfo["currencies"]["EUR"] == null))
+        {
+            <p>Valiuta: @Model.CountryInfo["currencies"]["EUR"]["name"] (@Model.CountryInfo["currencies"]["EUR"]["symbol"])</p>
+        }
+        else if (!(Model.CountryInfo["currencies"]["PLN"] == null))
+        {
+            <p>Valiuta: @Model.CountryInfo["currencies"]["PLN"]["name"] (@Model.CountryInfo["currencies"]["PLN"]["symbol"])</p>
+        }
+        else if (!(Model.CountryInfo["currencies"]["USD"] == null))
+        {
+            <p>Valiuta: @Model.CountryInfo["currencies"]["USD"]["name"] (@Model.CountryInfo["currencies"]["USD"]["symbol"])</p>
+        }
+        else
+        {
+            <p>Valiuta: Nežinoma</p>
+        }
+        <p>Kaimyninės šalys: @string.Join(", ", Model.CountryInfo["borders"]?.ToObject<string[]>() ?? new string[0])</p>
+        <p>Vėliava:</p>
+        <img src="@Model.CountryInfo["flags"]["png"]" alt="Flag of @Model.CountryInfo["name"]["common"]" />
+    </div>
+}
+else if (Model.countryCount == 0)
+{
+    <p>Pagal įvestą pavadinimą nebuvo rasta informacijos apie šalį.</p>
+}

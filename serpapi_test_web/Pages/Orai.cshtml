@@ -1,0 +1,67 @@
+﻿@page
+@model serpapi_test_web.Pages.OraiModel
+@{
+    ViewData["Title"] = "Orai";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Oro informacija</title>
+</head>
+<body>
+    <h1>Oro informacija</h1>
+
+    <form method="get">
+        <label for="location">Vietovė:</label>
+        <input type="text" id="location" name="location" required>
+        <br>
+        <label for="date">Data (nebūtina):</label>
+        <input type="date" id="date" name="date">
+        <br>
+        <button type="submit">Ieškoti</button>
+    </form>
+
+    @if (Model.NoResults)
+    {
+        <p>Nerasta informacijos apie orus. Vykdykite paiešką.</p>
+    }
+    else
+    {
+        <h2>Vietovė: @Model.WeatherInfo["location"]["name"]</h2>
+        @if (!string.IsNullOrWhiteSpace(Model.WeatherInfo["forecast"]?["forecastday"]?[0]?["hour"]?.ToString()))
+        {
+            var forecastDate = Model.WeatherInfo["forecast"]["forecastday"][0]["date"].ToString();
+            <h3>Orų prognozė @forecastDate</h3>
+
+            <div style="display: flex; flex-wrap: wrap;">
+                @foreach (var hourEntry in Model.WeatherInfo["forecast"]["forecastday"][0]["hour"])
+                {
+                    var hour = hourEntry["time"].ToString().Split(' ')[1].Split(':')[0];
+                    if (hour == "12" || hour == "03" || hour == "18")
+                    {
+                        <div style="margin-bottom: 20px; margin-right: 20px;">
+                            <h4>@hour:00</h4>
+                            <p>Temperatūra: @hourEntry["temp_c"] °C, </p>
+                            <p>Oro sąlygos: @hourEntry["condition"]["text"], </p>
+                            <p>Drėgmė: @hourEntry["humidity"] %, </p>
+                            <p>Vėjo greitis: @hourEntry["wind_kph"] km/h</p>
+                            <p>Vėjo kryptis: @hourEntry["wind_dir"]</p>
+                        </div>
+                    }
+                }
+            </div>
+        }
+        else
+        {
+            var currentDate = DateTime.Now.ToString("yyyy-MM-dd");
+            <h3>Dabartinis oras</h3>
+            <p>Temperatūra: @Model.WeatherInfo["current"]["temp_c"] °C, </p>
+            <p>Oro sąlygos: @Model.WeatherInfo["current"]["condition"]["text"], </p>
+            <p>Drėgmė: @Model.WeatherInfo["current"]["humidity"] %, </p>
+            <p>Vėjo greitis: @Model.WeatherInfo["current"]["wind_kph"] km/h</p>
+            <p>Vėjo kryptis: @Model.WeatherInfo["current"]["wind_dir"]</p>
+        }
+    }
+</body>
+</html>
